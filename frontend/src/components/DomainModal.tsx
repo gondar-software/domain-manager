@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import { insertDomainSchema, type Domain, type InsertDomain } from "@/shared/schema";
+import { insertDomainSchema, Domain, type InsertDomain, HostType } from "@/shared/schema";
 
 interface DomainModalProps {
   isOpen: boolean;
@@ -24,8 +24,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
     resolver: zodResolver(insertDomainSchema),
     defaultValues: {
       subdomain: "",
-      environment: "development",
-      hosts: [{ name: "", port: 3000, prefix: "/" }],
+      hosts: [{ type: HostType.DEFAULT, host: "http://localhost:3000", path: "/" }],
     },
   });
 
@@ -38,16 +37,14 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
     if (domain) {
       setIsEditing(true);
       form.reset({
-        subdomain: domain.subdomain,
-        environment: domain.environment,
+        subdomain: domain.domain,
         hosts: domain.hosts,
       });
     } else {
       setIsEditing(false);
       form.reset({
         subdomain: "",
-        environment: "development",
-        hosts: [{ name: "", port: 3000, prefix: "/" }],
+        hosts: [{ type: HostType.DEFAULT, host: "http://localhost:3000", path: "/" }],
       });
     }
   }, [domain, form]);
@@ -57,7 +54,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
   };
 
   const addHost = () => {
-    append({ name: "", port: 3000, prefix: "/" });
+    append({ type: HostType.DEFAULT, host: "http://localhost:3000", path: "/" });
   };
 
   const removeHost = (index: number) => {
@@ -94,30 +91,6 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={form.control}
-                  name="environment"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Environment</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select environment" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="production">Production</SelectItem>
-                          <SelectItem value="development">Development</SelectItem>
-                          <SelectItem value="staging">Staging</SelectItem>
-                          <SelectItem value="testing">Testing</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
             </div>
 
@@ -150,13 +123,24 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <FormField
                         control={form.control}
-                        name={`hosts.${index}.name`}
+                        name={`hosts.${index}.type`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Frontend" {...field} />
-                            </FormControl>
+                            <FormLabel>Type</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select host type" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Object.values(HostType).map((type) => (
+                                  <SelectItem key={type} value={type}>
+                                    {type === HostType.DEFAULT ? "Default Host" : "WebSocket Host"}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -164,14 +148,14 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
 
                       <FormField
                         control={form.control}
-                        name={`hosts.${index}.port`}
+                        name={`hosts.${index}.host`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Port</FormLabel>
+                            <FormLabel>Host</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
-                                placeholder="3000"
+                                type="url"
+                                placeholder="http://localhost:3000"
                                 {...field}
                                 onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                               />
@@ -183,7 +167,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
 
                       <FormField
                         control={form.control}
-                        name={`hosts.${index}.prefix`}
+                        name={`hosts.${index}.path`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Prefix</FormLabel>

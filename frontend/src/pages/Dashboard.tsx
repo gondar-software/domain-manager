@@ -6,10 +6,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { DomainCard } from "@/components/DomainCard";
 import { DomainModal } from "@/components/DomainModal";
 import { DeleteModal } from "@/components/DeleteModal";
-import { Globe, Server, Clock, Plus, LogOut } from "lucide-react";
+import { Globe, Server, Plus, LogOut } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Domain, InsertDomain } from "@shared/schema";
+import { Domain, InsertDomain } from "@/shared/schema";
 
 interface DashboardProps {
   onLogout: () => void;
@@ -28,13 +28,13 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   const { data: domains = [], isLoading } = useQuery({
     queryKey: ['/api/domains'],
     queryFn: async () => {
-      const response = await fetch('/api/domains', {
+      const response = await fetch('/api/domain/', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
       if (!response.ok) {
-        throw new Error('Failed to fetch domains');
+        onLogout();
       }
       return response.json();
     },
@@ -43,11 +43,11 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   // Create domain mutation
   const createDomainMutation = useMutation({
     mutationFn: async (data: InsertDomain) => {
-      const response = await apiRequest('POST', '/api/domains', data);
+      const response = await apiRequest('POST', '/api/domain/', data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/domain/'] });
       setIsAddModalOpen(false);
       toast({
         title: "Success",
@@ -67,11 +67,11 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   const updateDomainMutation = useMutation({
     mutationFn: async (data: InsertDomain) => {
       if (!selectedDomain) throw new Error('No domain selected');
-      const response = await apiRequest('PUT', `/api/domains/${selectedDomain.id}`, data);
+      const response = await apiRequest('PUT', `/api/domain/${selectedDomain.domain}`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/domain/'] });
       setIsEditModalOpen(false);
       setSelectedDomain(undefined);
       toast({
@@ -92,11 +92,11 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   const deleteDomainMutation = useMutation({
     mutationFn: async () => {
       if (!selectedDomain) throw new Error('No domain selected');
-      const response = await apiRequest('DELETE', `/api/domains/${selectedDomain.id}`);
+      const response = await apiRequest('DELETE', `/api/domain/${selectedDomain.domain}`);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/domains'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/domain/'] });
       setIsDeleteModalOpen(false);
       setSelectedDomain(undefined);
       toast({
@@ -208,7 +208,7 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          {/* <Card>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -224,7 +224,7 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Domain List Header */}
@@ -278,7 +278,7 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
           <div className="space-y-4">
             {domains.map((domain: Domain) => (
               <DomainCard
-                key={domain.id}
+                key={domain.domain}
                 domain={domain}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

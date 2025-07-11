@@ -2,8 +2,8 @@ from pydantic import BaseModel
 from enum import Enum
 
 class HostType(Enum):
-    Default = 0
-    WebSocket = 1
+    Default = "default"
+    WebSocket = "websocket"
 
 class Host(BaseModel):
     type: HostType

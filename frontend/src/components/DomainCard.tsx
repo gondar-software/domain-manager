@@ -11,31 +11,12 @@ interface DomainCardProps {
 }
 
 export function DomainCard({ domain, onEdit, onDelete }: DomainCardProps) {
-  const getEnvironmentColor = (environment: string) => {
-    switch (environment) {
-      case 'production':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'development':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'staging':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'testing':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-      default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-    }
-  };
-
   const getHostTypeColor = (name: string) => {
     const lowerName = name.toLowerCase();
-    if (lowerName.includes('frontend') || lowerName.includes('web')) {
+    if (lowerName.includes('default')) {
       return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-    } else if (lowerName.includes('backend') || lowerName.includes('api')) {
+    } else if (lowerName.includes('websocket')) {
       return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-    } else if (lowerName.includes('database') || lowerName.includes('db')) {
-      return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200';
-    } else {
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };
 
@@ -45,16 +26,10 @@ export function DomainCard({ domain, onEdit, onDelete }: DomainCardProps) {
         <div className="flex justify-between items-start mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {domain.subdomain}
+              {domain.domain}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              {domain.environment.charAt(0).toUpperCase() + domain.environment.slice(1)} environment
-            </p>
           </div>
           <div className="flex items-center space-x-2">
-            <Badge className={getEnvironmentColor(domain.environment)}>
-              {domain.environment}
-            </Badge>
             <Button
               variant="ghost"
               size="icon"
@@ -79,22 +54,20 @@ export function DomainCard({ domain, onEdit, onDelete }: DomainCardProps) {
             <div key={index} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
-                  {host.name}
+                  {host.type === "default" ? 'Default Host' : 'WebSocket Host'}
                 </span>
-                <Badge className={getHostTypeColor(host.name)} variant="secondary">
-                  {host.name.toLowerCase().includes('frontend') || host.name.toLowerCase().includes('web') ? 'WEB' :
-                   host.name.toLowerCase().includes('backend') || host.name.toLowerCase().includes('api') ? 'API' :
-                   host.name.toLowerCase().includes('database') || host.name.toLowerCase().includes('db') ? 'DB' : 'SVC'}
+                <Badge className={getHostTypeColor(host.type)} variant="secondary">
+                  {host.type === "default" ? 'Default' : 'WebSocket'}
                 </Badge>
               </div>
               <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex justify-between">
                   <span>Port:</span>
-                  <span>{host.port}</span>
+                  <span>{host.host}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Prefix:</span>
-                  <span>{host.prefix}</span>
+                  <span>{host.path}</span>
                 </div>
               </div>
             </div>
