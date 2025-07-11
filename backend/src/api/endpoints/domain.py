@@ -15,10 +15,7 @@ async def list_domains(
     """
     try:
         if payload:
-            domains = await domain_service.get_all_domains()
-            print(domains)
-            return domains
-            # return await domain_service.get_all_domains()
+            return await domain_service.get_all_domains()
         else:
             raise HTTPException(status_code=403, detail="Unauthorized access")
     except HTTPException:

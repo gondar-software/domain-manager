@@ -103,8 +103,35 @@ class NginxManager:
 
     def parse_existing_config(self) -> List[Domain]:
         """Parse the existing Nginx configuration and extract domain settings"""
-        ssl_server_pattern = r'server\s*\{[^}]*listen\s+443\s+ssl[^}]*(?!default_server)[^}]*\}'
-        server_blocks = re.findall(ssl_server_pattern, self.config, re.DOTALL)
+        def extract_server_blocks(config_text: str) -> list[str]:
+            blocks = []
+            inside_block = False
+            brace_count = 0
+            current_block = []
+
+            lines = config_text.splitlines()
+            for line in lines:
+                stripped = line.strip()
+                if stripped.startswith("server"):
+                    if "{" in stripped:
+                        inside_block = True
+                        brace_count = stripped.count("{") - stripped.count("}")
+                        current_block.append(line)
+                        continue
+                
+                if inside_block:
+                    current_block.append(line)
+                    brace_count += line.count("{") - line.count("}")
+                    if brace_count == 0:
+                        block_text = "\n".join(current_block).strip()
+                        if "location" in block_text and "443" in block_text:
+                            blocks.append(block_text)
+                        current_block = []
+                        inside_block = False
+
+            return blocks
+        
+        server_blocks = extract_server_blocks(self.config)
         
         domains = []
         for server_block in server_blocks:
