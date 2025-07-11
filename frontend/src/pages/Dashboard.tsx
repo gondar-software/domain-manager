@@ -13,10 +13,9 @@ import { Domain, InsertDomain } from "@/shared/schema";
 
 interface DashboardProps {
   onLogout: () => void;
-  token: string;
 }
 
-export default function Dashboard({ onLogout, token }: DashboardProps) {
+export default function Dashboard({ onLogout }: DashboardProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -28,11 +27,7 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   const { data: domains = [], isLoading } = useQuery({
     queryKey: ['/api/domains'],
     queryFn: async () => {
-      const response = await fetch('/api/domain/', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest('GET', '/api/domain/');
       if (!response.ok) {
         onLogout();
       }
@@ -67,7 +62,7 @@ export default function Dashboard({ onLogout, token }: DashboardProps) {
   const updateDomainMutation = useMutation({
     mutationFn: async (data: InsertDomain) => {
       if (!selectedDomain) throw new Error('No domain selected');
-      const response = await apiRequest('PUT', `/api/domain/${selectedDomain.domain}`, data);
+      const response = await apiRequest('PUT', `/api/domain/${selectedDomain.domain}`, data.hosts);
       return response.json();
     },
     onSuccess: () => {

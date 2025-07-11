@@ -10,7 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Globe, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
 
 const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
@@ -39,7 +38,14 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = async (data: LoginForm) => {
     try {
       setIsLoading(true);
-      const response = await apiRequest('POST', '/api/auth/login', { password: data.password });
+      const response = await fetch('/api/auth/login', {
+        body: JSON.stringify({ password: data.password }),
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+      });
       const result = await response.json();
       
       if (result.token) {

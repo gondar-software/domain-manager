@@ -44,7 +44,7 @@ function Router() {
     <Switch>
       <Route path="/">
         {token ? (
-          <Dashboard onLogout={handleLogout} token={token} />
+          <Dashboard onLogout={handleLogout} />
         ) : (
           <Login onLogin={handleLogin} />
         )}
