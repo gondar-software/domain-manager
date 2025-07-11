@@ -21,8 +21,8 @@ export default defineConfig({
       deny: ["**/.*"],
     },
     allowedHosts: [
-      "roman-terpeliuk.portfolio-app.online",
-      "www.roman-terpeliuk.portfolio-app.online"
+      "portfolio-app.online",
+      "www.portfolio-app.online"
     ]
   },
 });

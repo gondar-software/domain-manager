@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Domain } from "@shared/schema";
+import { Domain } from "@/shared/schema";
 
 interface DeleteModalProps {
   isOpen: boolean;

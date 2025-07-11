@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2 } from "lucide-react";
-import { insertDomainSchema, type Domain, type InsertDomain } from "@shared/schema";
+import { insertDomainSchema, type Domain, type InsertDomain } from "@/shared/schema";
 
 interface DomainModalProps {
   isOpen: boolean;
