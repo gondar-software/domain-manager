@@ -29,7 +29,7 @@ class DomainService:
         await self.remove_domain(domain)
         await self.godaddy_manager.add_records(domain)
         setup_cert(domain, self.email_address)
-        new_domain = Domain(domain, hosts)
+        new_domain = Domain(domain=domain, hosts=hosts)
         self.nginx_manager.add_domain(new_domain)
         await self.remove_domain(domain)
 

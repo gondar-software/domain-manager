@@ -151,10 +151,10 @@ class NginxManager:
                     is_websocket = 'proxy_set_header Upgrade $http_upgrade' in location_content
                     host_type = HostType.WebSocket if is_websocket else HostType.Default
                     
-                    host = Host(host_type, path, proxy_host)
+                    host = Host(type=host_type, path=path, host=proxy_host)
                     hosts.append(host)
             
-            return Domain(primary_domain, hosts)
+            return Domain(domain=primary_domain, hosts=hosts)
             
         except Exception as e:
             print(f"Error extracting domain from config: {e}")
