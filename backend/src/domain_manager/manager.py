@@ -4,7 +4,7 @@ from .godaddy_manager import GodaddyManager
 from .nginx_manager import NginxManager
 from .types import Domain, Host
 from .cert_helper import setup_cert, remove_cert
-from .config import settings
+from src.config import settings
 
 class DomainManager:
     def __init__(

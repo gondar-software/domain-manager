@@ -1,3 +1,7 @@
 pydantic-settings
 pydantic[email]
 httpx
+fastapi
+uvicorn
+python-jose
+itsdangerous
