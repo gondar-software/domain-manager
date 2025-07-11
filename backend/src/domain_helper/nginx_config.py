@@ -1,4 +1,4 @@
-from .types import Domain, HostType
+from src.schemas import Domain, HostType
 
 def get_nginx_domain_config(domain: Domain) -> str:
     server_config = f"""# {domain.domain} configuration

@@ -4,7 +4,7 @@ from typing import List
 
 from .constants import NGINX_CONFIG_PATH, NGINX_DEFAUT_CONFIG
 from .nginx_config import get_nginx_domain_config
-from .types import Domain, Host, HostType
+from src.schemas import Domain, Host, HostType
 
 class NginxManager:
     def __init__(self):
@@ -38,9 +38,20 @@ class NginxManager:
         return self.reload_nginx()
     
     def save_config(self):
-        """Save configuration to file"""
-        with open(NGINX_CONFIG_PATH, 'w') as f:
-            f.write(self.config)
+        """Save configuration to file using elevated privileges"""
+        try:
+            temp_file_path = "/tmp/nginx_temp_config"
+            # Write the config to a temporary file
+            with open(temp_file_path, 'w') as temp_file:
+                temp_file.write(self.config)
+            
+            # Use sudo to move the temporary file to the actual Nginx config path
+            subprocess.run(
+                ["sudo", "mv", temp_file_path, NGINX_CONFIG_PATH],
+                check=True
+            )
+        except Exception as e:
+            print(f"Error saving Nginx config: {e}")
     
     def reload_nginx(self):
         """Reload Nginx configuration"""
