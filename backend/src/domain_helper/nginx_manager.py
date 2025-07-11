@@ -27,31 +27,26 @@ class NginxManager:
         """Add a new domain to the proxy"""
         new_config_block = get_nginx_domain_config(domain)
         self.config = self.config.replace("# Add Servers Here", f"{new_config_block}# Add Servers Here")
-        self.save_config()
-        return self.reload_nginx()
+        self.save_config()\
 
     def remove_domain(self, domain: Domain):
         """Remove existing domain config"""
         config_block = get_nginx_domain_config(domain)
         self.config = self.config.replace(config_block, "")
-        self.save_config()
-        return self.reload_nginx()
+        self.save_config()\
     
     def save_config(self):
         """Save configuration to file using elevated privileges"""
-        try:
-            temp_file_path = "/tmp/nginx_temp_config"
-            # Write the config to a temporary file
-            with open(temp_file_path, 'w') as temp_file:
-                temp_file.write(self.config)
-            
-            # Use sudo to move the temporary file to the actual Nginx config path
-            subprocess.run(
-                ["sudo", "mv", temp_file_path, NGINX_CONFIG_PATH],
-                check=True
-            )
-        except Exception as e:
-            print(f"Error saving Nginx config: {e}")
+        temp_file_path = "/tmp/nginx_temp_config"
+        with open(temp_file_path, 'w') as temp_file:
+            temp_file.write(self.config)
+        
+        subprocess.run(
+            ["sudo", "mv", "-f", temp_file_path, NGINX_CONFIG_PATH],
+            check=True
+        )
+        if not self.reload_nginx():
+            self.restart_nginx()
     
     def reload_nginx(self):
         """Reload Nginx configuration"""
@@ -66,10 +61,9 @@ class NginxManager:
         """Restart Nginx service"""
         try:
             subprocess.run(["sudo", "systemctl", "restart", "nginx"])
-            return True
         except subprocess.CalledProcessError as e:
             print(e)
-            return False
+            raise
 
     def get_current_domains(self) -> List[Domain]:
         """Get current domain settings from Nginx configuration"""
@@ -80,24 +74,11 @@ class NginxManager:
         domains = self.get_current_domains()
         summary = {
             'total_domains': len(domains),
-            'domains': []
+            'domains': {}
         }
         
         for domain in domains:
-            domain_info = {
-                'domain': domain.domain,
-                'hosts': []
-            }
-            
-            for host in domain.hosts:
-                host_info = {
-                    'path': host.path,
-                    'proxy_host': host.host,
-                    'type': 'WebSocket' if host.type == HostType.WebSocket else 'Default'
-                }
-                domain_info['hosts'].append(host_info)
-            
-            summary['domains'].append(domain_info)
+            summary['domains'][domain.domain] = domain
         
         return summary
 
@@ -135,12 +116,10 @@ class NginxManager:
         
         domains = []
         for server_block in server_blocks:
-            try:
-                domain = self.extract_domain_from_config(server_block)
-                if domain and not self.is_default_server_block(server_block):
-                    domains.append(domain)
-            except Exception as e:
-                print(f"Error parsing config block: {e}")
+            domain = self.extract_domain_from_config(server_block)
+            if domain and not self.is_default_server_block(server_block):
+                domains.append(domain)
+
         return domains
 
     def is_default_server_block(self, config: str) -> bool:

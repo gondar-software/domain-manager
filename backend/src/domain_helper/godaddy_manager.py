@@ -23,35 +23,30 @@ class GodaddyManager:
         :param action: Action to perform ("add" or "remove").
         """
         subdomain, primary_domain = self.split_domain(full_domain)
-        try:
-            async with httpx.AsyncClient() as client:
-                headers = {
-                    "Authorization": f"sso-key {self.key}:{self.secret}",
-                    "Content-Type": "application/json"
-                }
-                for record_type in record_types:
-                    if action == "add":
-                        ip_response = await client.get("https://api.ipify.org")
-                        ip_response.raise_for_status()
-                        public_ip = ip_response.text
-                        data = [
-                            {
-                                "data": public_ip if record_type == "A" else f"{full_domain}.",
-                                "name": subdomain if subdomain else "@",
-                                "type": record_type
-                            }
-                        ]
-                        url = f"https://api.godaddy.com/v1/domains/{primary_domain}/records"
-                        response = await client.patch(url, headers=headers, json=data)
-                        response.raise_for_status()
-                    elif action == "remove":
-                        url = f"https://api.godaddy.com/v1/domains/{primary_domain}/records/{record_type}/{subdomain if subdomain else '@'}"
-                        response = await client.delete(url, headers=headers)
-                        response.raise_for_status()
-            return True
-        except httpx.HTTPStatusError as e:
-            print(f"GoDaddy API error: {e}")
-            return False
+        async with httpx.AsyncClient() as client:
+            headers = {
+                "Authorization": f"sso-key {self.key}:{self.secret}",
+                "Content-Type": "application/json"
+            }
+            for record_type in record_types:
+                if action == "add":
+                    ip_response = await client.get("https://api.ipify.org")
+                    ip_response.raise_for_status()
+                    public_ip = ip_response.text
+                    data = [
+                        {
+                            "data": public_ip if record_type == "A" else f"{full_domain}.",
+                            "name": subdomain if subdomain else "@",
+                            "type": record_type
+                        }
+                    ]
+                    url = f"https://api.godaddy.com/v1/domains/{primary_domain}/records"
+                    response = await client.patch(url, headers=headers, json=data)
+                    response.raise_for_status()
+                elif action == "remove":
+                    url = f"https://api.godaddy.com/v1/domains/{primary_domain}/records/{record_type}/{subdomain if subdomain else '@'}"
+                    response = await client.delete(url, headers=headers)
+                    response.raise_for_status()
 
     async def add_records(self, full_domain: str, record_types: list = ["A", "CNAME"]):
         """
