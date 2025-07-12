@@ -40,7 +40,7 @@ python3 -m server
 cd frontend
 npm run build
 cd dist
-http-server-spa ./ ./index.html -p 8000
+http-server-spa ./ ./index.html 8000
 ```
 
 ## Live link
