@@ -1,4 +1,5 @@
 # Domain Manager
+![screenshot](image.png)
 This is a simple react/vite + fastapi project to manage certificates and nginx config for several domain servicing in a instance.
 
 ## How to run
