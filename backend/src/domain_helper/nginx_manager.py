@@ -27,13 +27,11 @@ class NginxManager:
         """Add a new domain to the proxy"""
         new_config_block = get_nginx_domain_config(domain)
         self.config = self.config.replace("# Add Servers Here", f"{new_config_block}# Add Servers Here")
-        self.save_config()
 
     def remove_domain(self, domain: Domain):
         """Remove existing domain config"""
         config_block = get_nginx_domain_config(domain)
         self.config = self.config.replace(config_block, "")
-        self.save_config()
     
     def save_config(self):
         """Save configuration to file using elevated privileges"""

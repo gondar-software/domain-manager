@@ -34,6 +34,7 @@ class DomainService:
             setup_cert(domain, self.email_address)
             new_domain = Domain(domain=domain, hosts=hosts)
             self.nginx_manager.add_domain(new_domain)
+            self.nginx_manager.save_config()
         except Exception as e:
             print(f"Error adding domain {domain}: {e}")
             await self.remove_domain(domain)
@@ -44,11 +45,12 @@ class DomainService:
         Remove an existing domain.
         """
         # await self.godaddy_manager.remove_records(domain)
-        remove_cert(domain)
+        # remove_cert(domain)
         summary = self.nginx_manager.get_hosting_summary()
         old_domain = summary['domains'].get(domain, None)
         if old_domain:
             self.nginx_manager.remove_domain(old_domain)
+        self.nginx_manager.save_config()
         
 
     async def update_domain(self, domain: str, hosts: list[Host]):
@@ -56,8 +58,13 @@ class DomainService:
         Update an existing domain with new hosts.
         """
         try:
-            await self.remove_domain(domain)
-            await self.add_domain(domain, hosts)
+            summary = self.nginx_manager.get_hosting_summary()
+            old_domain = summary['domains'].get(domain, None)
+            if old_domain:
+                self.nginx_manager.remove_domain(old_domain)
+            new_domain = Domain(domain=domain, hosts=hosts)
+            self.nginx_manager.add_domain(new_domain)
+            self.nginx_manager.save_config()
         except:
             await self.remove_domain(domain)
             raise

@@ -49,13 +49,13 @@ export default function Dashboard({ onLogout }: DashboardProps) {
         description: "Domain created successfully",
       });
     },
-    onError: (error: Error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
+    // onError: (error: Error) => {
+    //   toast({
+    //     title: "Error",
+    //     description: error.message,
+    //     variant: "destructive",
+    //   });
+    // },
   });
 
   // Update domain mutation
@@ -85,9 +85,9 @@ export default function Dashboard({ onLogout }: DashboardProps) {
 
   // Delete domain mutation
   const deleteDomainMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedDomain) throw new Error('No domain selected');
-      const response = await apiRequest('DELETE', `/api/domain/${selectedDomain.domain}`);
+    mutationFn: async (domain: string) => {
+      if (!domain) throw new Error('No domain selected');
+      const response = await apiRequest('DELETE', `/api/domain/${domain}`);
       return response.json();
     },
     onSuccess: () => {
@@ -126,8 +126,8 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     updateDomainMutation.mutate(data);
   };
 
-  const handleDeleteDomain = () => {
-    deleteDomainMutation.mutate();
+  const handleDeleteDomain = (domain: string) => {
+    deleteDomainMutation.mutate(domain);
   };
 
   const totalHosts = domains.reduce((sum: number, domain: Domain) => sum + domain.hosts.length, 0);
@@ -292,6 +292,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
       />
 
       <DomainModal
+        isUpdating
         isOpen={isEditModalOpen}
         onClose={() => {
           setIsEditModalOpen(false);

@@ -13,7 +13,7 @@ import { Domain } from "@/shared/schema";
 interface DeleteModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (domain: string) => void;
   domain?: Domain;
   isLoading?: boolean;
 }
@@ -26,12 +26,12 @@ export function DeleteModal({ isOpen, onClose, onConfirm, domain, isLoading }: D
           <AlertDialogTitle>Delete Domain</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to delete the domain configuration for{" "}
-            <strong>{domain?.subdomain}</strong>? This action cannot be undone.
+            <strong>{domain?.domain}</strong>? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} disabled={isLoading}>
+          <AlertDialogAction onClick={() => onConfirm(domain?.domain || "")} disabled={isLoading}>
             {isLoading ? "Deleting..." : "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>

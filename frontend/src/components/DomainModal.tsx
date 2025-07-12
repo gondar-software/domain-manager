@@ -15,9 +15,10 @@ interface DomainModalProps {
   onSubmit: (data: InsertDomain) => void;
   domain?: Domain;
   isLoading?: boolean;
+  isUpdating?: boolean;
 }
 
-export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: DomainModalProps) {
+export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading, isUpdating }: DomainModalProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   const form = useForm<InsertDomain>({
@@ -81,6 +82,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
                 <FormField
                   control={form.control}
                   name="domain"
+                  disabled={isUpdating}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Domain</FormLabel>

@@ -1,7 +1,10 @@
 import subprocess
+import os
 
 def setup_cert(domain: str, email_address: str):
     try:
+        if os.path.isdir(f"/etc/letsencrypt/live/{domain}"):
+            return
         subprocess.run(["sudo", "fuser", "-k", "80/tcp"], stderr=subprocess.DEVNULL)
         subprocess.run([
             "sudo", "certbot", "certonly", "--standalone",
