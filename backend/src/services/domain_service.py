@@ -27,12 +27,15 @@ class DomainService:
         Add a new domain.
         """
         try:
-            await self.remove_domain(domain)
-            await self.godaddy_manager.add_records(domain)
+            try:
+                await self.remove_domain(domain)
+            except:
+                pass
             setup_cert(domain, self.email_address)
             new_domain = Domain(domain=domain, hosts=hosts)
             self.nginx_manager.add_domain(new_domain)
-        except:
+        except Exception as e:
+            print(f"Error adding domain {domain}: {e}")
             await self.remove_domain(domain)
             raise
 
@@ -40,14 +43,13 @@ class DomainService:
         """
         Remove an existing domain.
         """
-        await self.godaddy_manager.remove_records(domain)
+        # await self.godaddy_manager.remove_records(domain)
         remove_cert(domain)
         summary = self.nginx_manager.get_hosting_summary()
         old_domain = summary['domains'].get(domain, None)
         if old_domain:
             self.nginx_manager.remove_domain(old_domain)
-        else:
-            raise ValueError(f"Domain {domain} not found in Nginx configuration")
+        
 
     async def update_domain(self, domain: str, hosts: list[Host]):
         """

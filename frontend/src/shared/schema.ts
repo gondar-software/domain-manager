@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,17 +7,8 @@ export enum HostType {
   WEBSOCKET = "websocket"
 }
 
-export const hosts = pgTable("hosts", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  port: integer("port").notNull(),
-  prefix: text("prefix").notNull(),
-});
-
 export const domains = pgTable("domains", {
-  id: serial("id").primaryKey(),
-  subdomain: text("subdomain").notNull().unique(),
-  environment: text("environment").notNull(),
+  domain: text("subdomain").notNull().unique(),
   hosts: jsonb("hosts").$type<Host[]>().notNull().default([]),
 });
 
@@ -28,9 +19,9 @@ export const hostSchema = z.object({
 });
 
 export const insertDomainSchema = createInsertSchema(domains, {
-  subdomain: z.string().min(1, "Subdomain is required"),
+  domain: z.string().min(1, "Domain is required"),
   hosts: z.array(hostSchema).min(1, "At least one host is required"),
-}).omit({ id: true });
+});
 
 export const updateDomainSchema = insertDomainSchema.partial();
 

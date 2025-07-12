@@ -23,7 +23,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
   const form = useForm<InsertDomain>({
     resolver: zodResolver(insertDomainSchema),
     defaultValues: {
-      subdomain: "",
+      domain: "",
       hosts: [{ type: HostType.DEFAULT, host: "http://localhost:3000", path: "/" }],
     },
   });
@@ -37,13 +37,13 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
     if (domain) {
       setIsEditing(true);
       form.reset({
-        subdomain: domain.domain,
+        domain: domain.domain,
         hosts: domain.hosts,
       });
     } else {
       setIsEditing(false);
       form.reset({
-        subdomain: "",
+        domain: "",
         hosts: [{ type: HostType.DEFAULT, host: "http://localhost:3000", path: "/" }],
       });
     }
@@ -80,10 +80,10 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
-                  name="subdomain"
+                  name="domain"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Subdomain</FormLabel>
+                      <FormLabel>Domain</FormLabel>
                       <FormControl>
                         <Input placeholder="api.example.com" {...field} />
                       </FormControl>
@@ -157,7 +157,6 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
                                 type="url"
                                 placeholder="http://localhost:3000"
                                 {...field}
-                                onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
                               />
                             </FormControl>
                             <FormMessage />
@@ -172,7 +171,7 @@ export function DomainModal({ isOpen, onClose, onSubmit, domain, isLoading }: Do
                           <FormItem>
                             <FormLabel>Prefix</FormLabel>
                             <FormControl>
-                              <Input placeholder="/app" {...field} />
+                              <Input placeholder="/" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

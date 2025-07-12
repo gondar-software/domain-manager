@@ -9,6 +9,7 @@ events {
 http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
+    server_names_hash_bucket_size 1024;
     
     include /etc/nginx/conf.d/*.conf;
 

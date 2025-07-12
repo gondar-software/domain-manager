@@ -9,17 +9,15 @@ def setup_cert(domain: str, email_address: str):
             "--non-interactive",
             "--agree-tos",
             "--email", email_address,
-            "--expand"
+            "--expand",
+            "--cert-name", domain,
+            "--force-renewal"
         ], check=True)
-        return True
     except subprocess.CalledProcessError as e:
         print(e)
-        return False
 
 def remove_cert(domain: str):
     try:
         subprocess.run(["sudo", "rm", "-r", f"/etc/letsencrypt/live/{domain}"], check=True)
-        return True
     except subprocess.CalledProcessError as e:
         print(e)
-        return False
